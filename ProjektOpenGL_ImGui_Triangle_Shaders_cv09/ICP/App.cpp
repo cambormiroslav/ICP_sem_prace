@@ -674,8 +674,9 @@ int App::run(void)
 
             // draw all VAO data
             //glDrawArrays(GL_TRIANGLES, 0, triangle_vertices.size());
-            std::filesystem::path p("D:\\OneDrive\\Skola\\ICP_2023_24\\projekty\\ProjektOpenGL_ImGui_Triangle_Shaders_cv09\\ICP\\obj\\bunny_tri_vn.obj");
-            Model m(p, shader_prog_ID);
+            ShaderProgram myShader;
+            const char* vertex_path = "./obj/vertex.obj";
+            Model m(vertex_path, myShader);
             m.draw();
 
             // ImGui display

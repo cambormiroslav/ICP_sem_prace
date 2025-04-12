@@ -18,24 +18,20 @@ public:
     glm::vec3 origin{};
     glm::vec3 orientation{};
 
-    Model(const std::filesystem::path& filename, ShaderProgram& shader) {
+    //Model(const std::filesystem::path filename, ShaderProgram& shader) {
+    Model(const char* path, ShaderProgram & shader) {
         // load mesh (all meshes) of the model, load material of each mesh, load textures...
         // TODO: call LoadOBJFile, LoadMTLFile (if exist), process data, create mesh and set its properties
         //    notice: you can load multiple meshes and place them to proper positions, 
         //            multiple textures (with reusing) etc. to construct single complicated Model
-        std::vector< glm::vec3 > vertex_possitions;
-        std::vector< glm::vec2 > vertex_texcoors;
-        std::vector< glm::vec3 > vertex_normals;
-        loadOBJ(filename.string().c_str(), vertex_possitions, vertex_texcoors, vertex_normals);
-        
-        for (int i = 0; i < vertex_possitions.size(); i++) {
-            Vertex vertex;
-            vertex.Position = vertex_possitions[i];
-            vertex.Normal = vertex_normals[i];
-            vertex.TexCoords = vertex_texcoors[i];
+        std::vector<GLuint> indices;
+        std::vector<Vertex> vertices;
 
-            Mesh m();
-        }
+        loadOBJ(path, vertices, indices);
+        orientation = glm::vec3(0.0f, 0.0f, -30.0f);
+        origin = glm::vec3(530.0f, 158.0f, 470.0f);
+        Mesh mesh = Mesh(GL_TRIANGLES, shader, vertices, indices, origin, orientation);
+        meshes.push_back(mesh);
     }
 
     // update position etc. based on running time
@@ -43,7 +39,7 @@ public:
         // origin += glm::vec3(3,0,0) * delta_t; s=s0+v*dt
     }
 
-    void draw(glm::vec3 const& offset = glm::vec3(0.0), glm::vec3 const& rotation = glm::vec3(0.0f)) {
+    void draw(glm::vec3 const& offset = glm::vec3(0.0f), glm::vec3 const& rotation = glm::vec3(0.0f)) {
         // call draw() on mesh (all meshes)
         for (auto &mesh : meshes) {
             mesh.draw(origin + offset, orientation + rotation);
