@@ -43,7 +43,7 @@ public:
     {
         // TODO: create and initialize VAO, VBO, EBO and parameters
 
-        GLuint prog_h = glCreateProgram();
+        GLuint prog_h = shader.getID();
 
         // Create the VAO and VBO
         glCreateVertexArrays(1, &VAO);

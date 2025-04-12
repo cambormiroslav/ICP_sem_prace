@@ -28,6 +28,8 @@ public:
     void setUniform(const std::string & name, const glm::vec4 val);  // TODO: implement
     void setUniform(const std::string & name, const glm::mat3 val);   
     void setUniform(const std::string & name, const glm::mat4 val);  // TODO: implement
+
+	GLuint getID();
     
 private:
 	GLuint ID{0}; // default = 0, empty shader

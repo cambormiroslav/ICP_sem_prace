@@ -7,6 +7,8 @@
 
 #include "ShaderProgram.hpp"
 
+GLuint progID;
+
 // set uniform according to name 
 // https://docs.gl/gl4/glUniform
 
@@ -18,6 +20,7 @@ ShaderProgram::ShaderProgram(const std::filesystem::path& VS_file, const std::fi
 	shader_ids.push_back(compile_shader(FS_file, GL_FRAGMENT_SHADER));
 
 	ID = link_shader(shader_ids);
+	progID = ID;
 }
 
 inline void ShaderProgram::setUniform(const std::string& name, const float val) {
@@ -159,4 +162,9 @@ std::string ShaderProgram::textFileRead(const std::filesystem::path& filename)
 	std::stringstream ss;
 	ss << file.rdbuf();
 	return ss.str();
+}
+
+GLuint ShaderProgram::getID()
+{
+	return progID;
 }
