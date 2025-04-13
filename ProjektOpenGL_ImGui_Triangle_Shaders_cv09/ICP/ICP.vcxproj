@@ -172,6 +172,7 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="OBJloader.hpp" />
     <ClInclude Include="ShaderProgram.hpp" />
+    <ClInclude Include="teapot_vec.hpp" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
