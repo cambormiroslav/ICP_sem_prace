@@ -18,8 +18,6 @@ public:
     // mesh data
     glm::vec3 origin{};
     glm::vec3 orientation{};
-    std::vector<Vertex> vertices; //doplnìno
-    std::vector<GLuint> indices; //doplnìno
     
     GLuint texture_id{0}; // texture id=0  means no texture
     GLenum primitive_type = GL_POINT;
@@ -49,15 +47,32 @@ public:
         glCreateVertexArrays(1, &VAO);
         // Set Vertex Attribute to explain OpenGL how to interpret the data
         GLint position_attrib_location = glGetAttribLocation(prog_h, "aPos");
-        glVertexArrayAttribFormat(VAO, position_attrib_location, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Position));
-        glVertexArrayAttribBinding(VAO, position_attrib_location, 0);
-        glEnableVertexArrayAttrib(VAO, position_attrib_location);
+        if (position_attrib_location == -1)
+            std::cerr << "Position of 'aPos' not found" << std::endl;
+        else {
+            glVertexArrayAttribFormat(VAO, position_attrib_location, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Position));
+            glVertexArrayAttribBinding(VAO, position_attrib_location, 0);
+            glEnableVertexArrayAttrib(VAO, position_attrib_location);
+        }
+
+        GLint normal_attrib_location = glGetAttribLocation(prog_h, "aNormal");
+        if (normal_attrib_location == -1)
+            std::cerr << "Position of 'aNorm' not found" << std::endl;
+        else {
+            glVertexArrayAttribFormat(VAO, normal_attrib_location, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, Normal));
+            glVertexArrayAttribBinding(VAO, normal_attrib_location, 0);
+            glEnableVertexArrayAttrib(VAO, normal_attrib_location);
+        }
             
         // Set and enable Vertex Attribute for Texture Coordinates
         GLint texture_attrib_location = glGetAttribLocation(prog_h, "aTex");
-        glVertexArrayAttribFormat(VAO, texture_attrib_location, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, Position));
-        glVertexArrayAttribBinding(VAO, texture_attrib_location, 0);
-        glEnableVertexArrayAttrib(VAO, texture_attrib_location);
+        if (texture_attrib_location == -1)
+            std::cerr << "Position of 'aTex' not found" << std::endl;
+        else {
+            glVertexArrayAttribFormat(VAO, texture_attrib_location, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, TexCoords));
+            glVertexArrayAttribBinding(VAO, texture_attrib_location, 0);
+            glEnableVertexArrayAttrib(VAO, texture_attrib_location);
+        }
                 
         // Create and fill data
         glCreateBuffers(1, &VBO); // Vertex Buffer Object
@@ -108,6 +123,9 @@ private:
     // OpenGL buffer IDs
     // ID = 0 is reserved (i.e. uninitalized)
      unsigned int VAO{0}, VBO{0}, EBO{0};
+
+     std::vector<Vertex> vertices; //doplnìno
+     std::vector<GLuint> indices; //doplnìno
 };
   
 

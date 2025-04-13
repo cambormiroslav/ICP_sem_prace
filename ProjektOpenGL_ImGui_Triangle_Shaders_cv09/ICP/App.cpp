@@ -9,13 +9,11 @@
 
 #include <opencv2/opencv.hpp>
 
-#include <glm/glm.hpp>
-#include <glm/ext.hpp>
-
-#include <opencv2/opencv.hpp>
 #include <GL/glew.h> 
 #include <GL/wglew.h> 
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/ext.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <imgui.h>
@@ -23,6 +21,7 @@
 #include <backends/imgui_impl_opengl3.h>
 
 #include "App.hpp"
+#include "ShaderProgram.hpp"
 #include "headers.hpp"
 #include "assets.hpp"
 #include "Model.h"
@@ -35,6 +34,8 @@ std::vector<uchar> bytes;
 bool ready = false;
 bool processed = false;
 bool show_imgui = false;
+std::unordered_map<std::string, Model> scene;
+std::vector<ShaderProgram> shaders;
 
 
 App::App()
@@ -195,59 +196,11 @@ void App::init_assets(void) {
     // Initialize pipeline: compile, link and use shaders
     //
 
-    //SHADERS - define & compile & link
-    const char* vertex_shader =
-        "#version 460 core\n"
-        "in vec3 attribute_Position;"
-        "void main() {"
-        "  gl_Position = vec4(attribute_Position, 1.0);"
-        "}";
-
-    const char* fragment_shader =
-        "#version 460 core\n"
-        "uniform vec4 uniform_Color;"
-        "out vec4 FragColor;"
-        "void main() {"
-        "  FragColor = uniform_Color;"
-        "}";
-
-    GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vs, 1, &vertex_shader, NULL);
-    glCompileShader(vs);
-
-    GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fs, 1, &fragment_shader, NULL);
-    glCompileShader(fs);
-
-    shader_prog_ID = glCreateProgram();
-    glAttachShader(shader_prog_ID, fs);
-    glAttachShader(shader_prog_ID, vs);
-    glLinkProgram(shader_prog_ID);
-
-    //now we can delete shader parts (they can be reused, if you have more shaders)
-    //the final shader program already linked and stored separately
-    glDeleteShader(vs);
-    glDeleteShader(fs);
-
-    // 
-    // Create and load data into GPU using OpenGL DSA (Direct State Access)
-    //
-
-    // Create VAO + data description (just envelope, or container...)
-    glCreateVertexArrays(1, &VAO_ID);
-
-    GLint position_attrib_location = glGetAttribLocation(shader_prog_ID, "attribute_Position");
-
-    glEnableVertexArrayAttrib(VAO_ID, position_attrib_location);
-    glVertexArrayAttribFormat(VAO_ID, position_attrib_location, 3, GL_FLOAT, GL_FALSE, offsetof(vertex, position));
-    glVertexArrayAttribBinding(VAO_ID, position_attrib_location, 0); // (GLuint vaobj, GLuint attribindex, GLuint bindingindex)
-
-    // Create and fill data
-    glCreateBuffers(1, &VBO_ID);
-    glNamedBufferData(VBO_ID, triangle_vertices.size() * sizeof(vertex), triangle_vertices.data(), GL_STATIC_DRAW);
-
-    // Connect together
-    glVertexArrayVertexBuffer(VAO_ID, 0, VBO_ID, 0, sizeof(vertex)); // (GLuint vaobj, GLuint bindingindex, GLuint buffer, GLintptr offset, GLsizei stride)
+    ShaderProgram myShader = ShaderProgram("resources/basic_core.vert", "resources/basic_uniform.frag");
+    shaders.push_back(myShader);
+    const char* vertex_path = "./obj/cube_triangles_vnt.obj";
+    Model model = Model(vertex_path, myShader);
+    scene.insert({"obj", model });
 }
 
 void App::glfw_error_callback(int error, const char* description)
@@ -257,20 +210,6 @@ void App::glfw_error_callback(int error, const char* description)
 
 void App::glfw_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    /*int c = cv::pollKey();
-            switch (c) {
-            case 27:
-                return EXIT_SUCCESS;
-                break;
-            case 'q':
-                target_coefficient += 1;
-                break;
-            case 'a':
-                target_coefficient -= 1;
-                break;
-            default:
-                break;
-            }*/
     auto this_inst = static_cast<App*>(glfwGetWindowUserPointer(window));
     if ((action == GLFW_PRESS) || (action == GLFW_REPEAT)) {
         switch (key) {
@@ -472,82 +411,6 @@ void App::print_gl_info()
     }
 }
 
-/*
-* main function from Jenicek
-*  -> transformed to lossy_quality_limit
-*/
-std::vector<uchar> App::lossy_bw_limit(cv::Mat& input_img, size_t size_limit)
-{
-    std::string suff(".jpg"); // target format
-    if (!cv::haveImageWriter(suff))
-        throw std::runtime_error("Can not compress to format:" + suff);
-
-    std::vector<uchar> bytes;
-    std::vector<int> compression_params;
-
-    // prepare parameters for JPEG compressor
-    // we use only quality, but other parameters are available (progressive, optimization...)
-    std::vector<int> compression_params_template;
-    compression_params_template.push_back(cv::IMWRITE_JPEG_QUALITY); 
-
-    std::cout << '[';
-
-    //try step-by-step to decrease quality by 5%, until it fits into limit
-    for (auto i = 100; i > 0; i -= 5) {
-        compression_params = compression_params_template; // reset parameters
-        compression_params.push_back(i);                  // set desired quality
-        std::cout << i << ',';
-
-        // try to encode
-        cv::imencode(suff, input_img, bytes, compression_params);
-
-        // check the size limit
-        if (bytes.size() <= size_limit)
-            break; // ok, done
-    }
-    std::cout << "]\n";
-    //std::cout << "DB: " << cv::PSNR(input_img, cv::imdecode(bytes, cv::IMREAD_ANYCOLOR)) << " %\n";
-
-    return bytes;
-}
-/*
-* the middle before main function and thread function
-* -> transformed to lossy_quality_limit_thread
-*/
-std::vector<uchar> lossy_quality_limit(cv::Mat& input_img, float target_quality) 
-{
-    std::string suff(".jpg"); // target format
-    if (!cv::haveImageWriter(suff))
-        throw std::runtime_error("Can not compress to format:" + suff);
-
-    std::vector<uchar> bytes;
-    std::vector<int> compression_params;
-
-    // prepare parameters for JPEG compressor
-    // we use only quality, but other parameters are available (progressive, optimization...)
-    std::vector<int> compression_params_template;
-    compression_params_template.push_back(cv::IMWRITE_JPEG_QUALITY);
-
-    std::cout << '[';
-
-    //try step-by-step to decrease quality by 5%, until it fits into limit
-    for (auto i = 0; i < 100; i += 5) {
-        compression_params = compression_params_template; // reset parameters
-        compression_params.push_back(i);                  // set desired quality
-
-        // try to encode
-        cv::imencode(suff, input_img, bytes, compression_params);
-        std::cout << cv::PSNR(input_img, cv::imdecode(bytes, cv::IMREAD_ANYCOLOR)) << ',';
-
-        //if quality is larger: it is our output
-        if (cv::PSNR(input_img, cv::imdecode(bytes, cv::IMREAD_ANYCOLOR)) >= (target_quality))
-            break; // ok, done
-    }
-    std::cout << "]\n";
-    //std::cout << "DB: " << cv::PSNR(input_img, cv::imdecode(bytes, cv::IMREAD_ANYCOLOR)) << " %\n";
-
-    return bytes;
-}
 
 void lossy_quality_limit_thread()
 {
@@ -616,12 +479,18 @@ int App::run(void)
 
         // Activate shader program. There is only one program, so activation can be out of the loop. 
         // In more realistic scenarios, you will activate different shaders for different 3D objects.
-        glUseProgram(shader_prog_ID);
+        //glUseProgram(shader_prog_ID);
 
         // Get uniform location in GPU program. This will not change, so it can be moved out of the game loop.
-        GLint uniform_color_location = glGetUniformLocation(shader_prog_ID, "uniform_Color");
+        /*GLint uniform_color_location = glGetUniformLocation(shader_prog_ID, "ucolor");
         if (uniform_color_location == -1) {
             std::cerr << "Uniform location is not found in active shader program. Did you forget to activate it?\n";
+        }*/
+
+        for (auto& shader : shaders) {
+            shader.activate();
+            glm::vec4 my_rgba = glm::vec4(r, g, b, a);
+            shader.setUniform("ucolor", my_rgba);
         }
 
         //while (capture.isOpened())
@@ -667,17 +536,19 @@ int App::run(void)
 
             //set uniform parameter for shader
             // (try to change the color in key callback)          
-            glUniform4f(uniform_color_location, r, g, b, a);
+            //glUniform4f(uniform_color_location, r, g, b, a);
 
             //bind 3d object data
-            glBindVertexArray(VAO_ID);
+            //glBindVertexArray(VAO_ID);
 
             // draw all VAO data
             //glDrawArrays(GL_TRIANGLES, 0, triangle_vertices.size());
-            ShaderProgram myShader;
-            const char* vertex_path = "./obj/vertex.obj";
-            Model m(vertex_path, myShader);
-            m.draw();
+            
+            
+
+            for (auto& model : scene) {
+                model.second.draw();
+            }
 
             // ImGui display
             if (show_imgui) {

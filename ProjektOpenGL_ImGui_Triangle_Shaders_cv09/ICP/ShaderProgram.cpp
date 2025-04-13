@@ -23,7 +23,7 @@ ShaderProgram::ShaderProgram(const std::filesystem::path& VS_file, const std::fi
 	progID = ID;
 }
 
-inline void ShaderProgram::setUniform(const std::string& name, const float val) {
+void ShaderProgram::setUniform(const std::string& name, const float val) {
 	auto loc = glGetUniformLocation(ID, name.c_str());
 	if (loc == -1) {
 		std::cerr << "no uniform with name:" << name << '\n';
@@ -32,7 +32,7 @@ inline void ShaderProgram::setUniform(const std::string& name, const float val) 
 	glUniform1f(loc, val);
 }
 
-inline void ShaderProgram::setUniform(const std::string& name, const int val) {
+void ShaderProgram::setUniform(const std::string& name, const int val) {
 	auto loc = glGetUniformLocation(ID, name.c_str());
 	if (loc == -1) {
 		std::cerr << "no uniform with name:" << name << '\n';
@@ -41,7 +41,7 @@ inline void ShaderProgram::setUniform(const std::string& name, const int val) {
 	glUniform1i(loc, val);
 }
 
-inline void ShaderProgram::setUniform(const std::string& name, const glm::vec3 val)
+void ShaderProgram::setUniform(const std::string& name, const glm::vec3 val)
 {
 	auto loc = glGetUniformLocation(ID, name.c_str());
 	if (loc == -1) {
@@ -52,7 +52,7 @@ inline void ShaderProgram::setUniform(const std::string& name, const glm::vec3 v
 	glUniform3fv(loc, 1, glm::value_ptr(val));
 }
 
-inline void ShaderProgram::setUniform(const std::string& name, const glm::vec4 in_vec4) {
+void ShaderProgram::setUniform(const std::string& name, const glm::vec4 in_vec4) {
 	auto loc = glGetUniformLocation(ID, name.c_str());
 	if (loc == -1) {
 		std::cerr << "no uniform with name:" << name << '\n';
@@ -62,7 +62,7 @@ inline void ShaderProgram::setUniform(const std::string& name, const glm::vec4 i
 	glUniform4fv(loc, 1, glm::value_ptr(in_vec4));
 }
 
-inline void ShaderProgram::setUniform(const std::string& name, const glm::mat3 val)
+void ShaderProgram::setUniform(const std::string& name, const glm::mat3 val)
 {
 	auto loc = glGetUniformLocation(ID, name.c_str());
 	if (loc == -1) {
@@ -73,7 +73,7 @@ inline void ShaderProgram::setUniform(const std::string& name, const glm::mat3 v
 	glUniformMatrix3fv(loc, 1, GL_FALSE, glm::value_ptr(val));
 }
 
-inline void ShaderProgram::setUniform(const std::string& name, const glm::mat4 val) {
+void ShaderProgram::setUniform(const std::string& name, const glm::mat4 val) {
 	auto loc = glGetUniformLocation(ID, name.c_str());
 	if (loc == -1) {
 		std::cerr << "no uniform with name:" << name << '\n';
@@ -166,5 +166,5 @@ std::string ShaderProgram::textFileRead(const std::filesystem::path& filename)
 
 GLuint ShaderProgram::getID()
 {
-	return progID;
+	return ID;
 }
