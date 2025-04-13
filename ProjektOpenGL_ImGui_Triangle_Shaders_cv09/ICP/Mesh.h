@@ -98,10 +98,8 @@ public:
         
         // for future use: set uniform variables: position, textures, etc...  
         //set texture id etc...
-        if (texture_id > 0) {
-            glBindVertexArray(VAO);
-            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-        }
+        glBindVertexArray(VAO);
+        glDrawElements(primitive_type, indices.size(), GL_UNSIGNED_INT, 0);
     }
 
 
@@ -111,11 +109,9 @@ public:
         // TODO: clear rest of the member variables to safe default
         
         // TODO: delete all allocations 
-        glDeleteBuffers(GL_INT, &VAO);
-        glDeleteBuffers(GL_INT, &VBO);
-        glDeleteBuffers(GL_INT, &EBO);
-        
-        //glDeleteVertexArrays() //odkomentovat
+        glDeleteBuffers(1, &VBO);
+        glDeleteBuffers(1, &EBO);
+        glDeleteVertexArrays(1, &VAO);
         
     };
 

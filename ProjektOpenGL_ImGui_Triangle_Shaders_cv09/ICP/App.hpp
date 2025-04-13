@@ -8,6 +8,8 @@
 #include <GLFW/glfw3.h>
 
 #include "assets.hpp"
+#include "ShaderProgram.hpp"
+#include "Model.h"
 
 class App {
 public:
@@ -64,5 +66,8 @@ private:
         {{0.5f, -0.5f,  0.0f}},
         {{-0.5f, -0.5f,  0.0f}}
     };
+
+    ShaderProgram shader;
+    std::unordered_map<std::string, Model> scene;
 };
 

@@ -34,8 +34,6 @@ std::vector<uchar> bytes;
 bool ready = false;
 bool processed = false;
 bool show_imgui = false;
-std::unordered_map<std::string, Model> scene;
-std::vector<ShaderProgram> shaders;
 
 
 App::App()
@@ -196,10 +194,9 @@ void App::init_assets(void) {
     // Initialize pipeline: compile, link and use shaders
     //
 
-    ShaderProgram myShader = ShaderProgram("resources/basic_core.vert", "resources/basic_uniform.frag");
-    shaders.push_back(myShader);
+    shader = ShaderProgram("resources/basic_core.vert", "resources/basic_uniform.frag");
     const char* vertex_path = "./obj/cube_triangles_vnt.obj";
-    Model model = Model(vertex_path, myShader);
+    Model model = Model(vertex_path, shader);
     scene.insert({"obj", model });
 }
 
@@ -487,11 +484,8 @@ int App::run(void)
             std::cerr << "Uniform location is not found in active shader program. Did you forget to activate it?\n";
         }*/
 
-        for (auto& shader : shaders) {
-            shader.activate();
-            glm::vec4 my_rgba = glm::vec4(r, g, b, a);
-            shader.setUniform("ucolor", my_rgba);
-        }
+        shader.activate();
+        shader.setUniform("ucolor", glm::vec4(r, g, b, a));
 
         //while (capture.isOpened())
         while (!glfwWindowShouldClose(window))
@@ -532,20 +526,9 @@ int App::run(void)
             g = std::fabs(std::sinf(now));
             std::clamp(g, 0.0f, 1.0f);
 
-            //r and b part change by r: 7 and 4, b: 8 and 5 on numpad in func: glfw_key_callback
+            shader.setUniform("ucolor", glm::vec4(r, g, b, a));
 
-            //set uniform parameter for shader
-            // (try to change the color in key callback)          
-            //glUniform4f(uniform_color_location, r, g, b, a);
-
-            //bind 3d object data
-            //glBindVertexArray(VAO_ID);
-
-            // draw all VAO data
-            //glDrawArrays(GL_TRIANGLES, 0, triangle_vertices.size());
-            
-            
-
+            //draw object
             for (auto& model : scene) {
                 model.second.draw();
             }

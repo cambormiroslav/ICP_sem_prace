@@ -29,8 +29,8 @@ public:
         std::vector<Vertex> vertices;
 
         loadOBJ(path, vertices, indices);
-        orientation = glm::vec3(0.0f, 0.0f, -30.0f);
-        origin = glm::vec3(530.0f, 158.0f, 470.0f);
+        orientation = glm::vec3(0.0f, 0.0f, 0.0f);
+        origin = glm::vec3(0.0f, 0.0f, 0.0f);
         size = glm::vec3(1.0f);
         Mesh mesh = Mesh(GL_TRIANGLES, shader, vertices, indices, origin, orientation);
         meshes.push_back(mesh);
