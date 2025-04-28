@@ -4,6 +4,7 @@
 
 * movement: `W`, `A`, `S`, `D`
 * play music: `space`
+* pause music: `B`
 * turn on or off: `spotlight`
 * fullscreen swither: `F11`
 * turn on or off imgui: `I`
