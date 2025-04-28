@@ -312,30 +312,17 @@ void App::glfw_key_callback(GLFWwindow* window, int key, int scancode, int actio
             // Exit The App
             glfwSetWindowShouldClose(window, GLFW_TRUE);
             break;
-        case GLFW_KEY_Q:
+        case GLFW_KEY_M:
             target_quality += 1;
+            break;
+        case GLFW_KEY_N:
+            target_quality -= 1;
             break;
         case GLFW_KEY_V:
             // Vsync on/off
             this_inst->is_vsync_on = !this_inst->is_vsync_on;
             glfwSwapInterval(this_inst->is_vsync_on);
             std::cout << "VSync: " << this_inst->is_vsync_on << "\n";
-            break;
-        case GLFW_KEY_KP_7:
-            this_inst -> r += 0.1;
-            std::clamp(this_inst -> r, 0.0f, 1.0f);
-            break;
-        case GLFW_KEY_KP_4:
-            this_inst->r -= 0.1;
-            std::clamp(this_inst->r, 0.0f, 1.0f);
-            break;
-        case GLFW_KEY_KP_8:
-            this_inst->b += 0.1;
-            std::clamp(this_inst->r, 0.0f, 1.0f);
-            break;
-        case GLFW_KEY_KP_5:
-            this_inst->b -= 0.1;
-            std::clamp(this_inst->r, 0.0f, 1.0f);
             break;
         case GLFW_KEY_I:
             this_inst->show_imgui = !this_inst->show_imgui;
@@ -645,11 +632,6 @@ void lossy_quality_limit_thread()
 
 int App::run(void)
 {
-    //cv::Mat frame;
-    //std::vector<uchar> bytes;
-    //float target_coefficient = 35.0f; // used as size-ratio, or quality-coefficient
-
-
     try {
         double now = glfwGetTime();
         // FPS related
@@ -664,16 +646,6 @@ int App::run(void)
 
         // Clear color saved to OpenGL state machine: no need to set repeatedly in game loop
         glClearColor(0, 0, 0, 0);
-
-        // Activate shader program. There is only one program, so activation can be out of the loop. 
-        // In more realistic scenarios, you will activate different shaders for different 3D objects.
-        //glUseProgram(shader_prog_ID);
-
-        // Get uniform location in GPU program. This will not change, so it can be moved out of the game loop.
-        /*GLint uniform_color_location = glGetUniformLocation(shader_prog_ID, "ucolor");
-        if (uniform_color_location == -1) {
-            std::cerr << "Uniform location is not found in active shader program. Did you forget to activate it?\n";
-        }*/
 
         shader.activate();
 
@@ -721,10 +693,6 @@ int App::run(void)
 
             // Clear OpenGL canvas, both color buffer and Z-buffer
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            //change by time the green part of RGB
-            g = std::fabs(std::sinf(now));
-            std::clamp(g, 0.0f, 1.0f);
 
 
             // 1. Aktivuj shader
@@ -865,72 +833,14 @@ int App::run(void)
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, frameRGB.cols, frameRGB.rows, 0, GL_RGB, GL_UNSIGNED_BYTE, frameRGB.data);
                 glBindTexture(GL_TEXTURE_2D, 0);
             }
-
-
-
-            // encode image with bandwidth limit
-
-
-            //gggg
-            //auto size_compressed_limit = size_uncompressed * target_coefficient;
-          //
-            // Encode single image with limitation by bandwidth
-            //
-            //bytes = lossy_bw_limit(frame, size_compressed_limit); // returns JPG compressed stream for single image
-
-            //bytes = lossy_quality_limit(frame, target_coefficient);
-
-
-            //
-            // TASK 1: Replace function lossy_bw_limit() - limitation by bandwith - with limitation by quality.
-            //         Implement the function:
-            // bytes = lossy_quality_limit(frame, target_coefficient);
-            // 
-            //         Use PSNR (Peak Signal to Noise Ratio)
-            //         or  SSIM (Structural Similarity) 
-            // (from https://docs.opencv.org/2.4/doc/tutorials/highgui/video-input-psnr-ssim/video-input-psnr-ssim.html#image-similarity-psnr-and-ssim ) 
-            //         to estimate quality of the compressed image.
-            //
-
+            
 
             // display compression ratio
             auto size_compreessed = bytes.size();
 
-            //gggggg
-            //std::cout << "Size: uncompressed = " << size_uncompressed << ", compressed = " << size_compreessed << ", = " << size_compreessed / (size_uncompressed / 100.0) << " % \n";
-
-
-            //
-            // decode compressed data
-            //  
-
-
-            //cv::namedWindow("original");
-            //cv::imshow("original", frame);
-
-            //cv::namedWindow("decoded");
-            //cv::imshow("decoded", decoded_frame);
-
-            // key handling
-            /*int c = cv::pollKey();
-            switch (c) {
-            case 27:
-                return EXIT_SUCCESS;
-                break;
-            case 'q':
-                target_coefficient += 1;
-                break;
-            case 'a':
-                target_coefficient -= 1;
-                break;
-            default:
-                break;
-            }*/
+ 
 
             target_quality = std::clamp(target_quality, 0.0f, 100.0f);
-            //ggggggg
-            //std::cout << "Target coeff: " << target_quality << " dB\n";
-            //target_quality = target_coefficient;
 
             now = glfwGetTime();
             previous_frame_render_time = now - frame_begin_timepoint; //compute delta_t
