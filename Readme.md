@@ -15,3 +15,7 @@
 ## Spotlight location
 
 * in back of the glass cube
+
+## Version of OpenCV
+
+* 4.10.0 x64
