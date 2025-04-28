@@ -32,6 +32,7 @@ public:
 
     void init_audio();
     void play_audio();
+    void stop_audio();
     void destroy_audio();
 
     bool init(void);
@@ -53,6 +54,9 @@ private:
     bool is_vsync_on = true;
     bool show_imgui = true;
 
+    bool music_is_run = false;
+    bool music_is_init = false;
+    ma_sound mySound;
     
     
     //SPOTLIGHT

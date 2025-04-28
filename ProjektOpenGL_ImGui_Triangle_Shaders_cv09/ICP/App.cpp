@@ -66,8 +66,23 @@ void App::init_audio() {
 }
 
 void App::play_audio() {
-    if (ma_engine_play_sound(&audio_engine, "resources/music.mp3", NULL) != MA_SUCCESS) {
-        std::cerr << "Failed to play sound!" << std::endl;
+    if (!music_is_run) {
+        ma_engine_start(&audio_engine);
+        if(!music_is_init)
+        {
+            if (ma_engine_play_sound(&audio_engine, "resources/music.mp3", NULL) != MA_SUCCESS) {
+                std::cerr << "Failed to play sound!" << std::endl;
+            }
+            music_is_init = true;
+        }
+        music_is_run = true;
+    }
+}
+
+void App::stop_audio() {
+    if (music_is_run) {
+        ma_engine_stop(&audio_engine);
+        music_is_run = false;
     }
 }
 
@@ -353,6 +368,9 @@ void App::glfw_key_callback(GLFWwindow* window, int key, int scancode, int actio
             break;
         case GLFW_KEY_SPACE:
             this_inst->play_audio();
+            break;
+        case GLFW_KEY_B:
+            this_inst->stop_audio();
             break;
         default:
             break;
