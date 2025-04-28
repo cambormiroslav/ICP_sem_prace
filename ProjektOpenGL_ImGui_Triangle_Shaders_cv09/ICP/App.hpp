@@ -10,18 +10,39 @@
 #include "assets.hpp"
 #include "ShaderProgram.hpp"
 #include "Model.h"
+#include "miniaudio.h"
+#include "ParticleSystem.h"
+
+
+
 
 class App {
 public:
     App();
     
     std::vector<uchar> lossy_bw_limit(cv::Mat& input_img, size_t size_limit);
-    
-    // public methods
+
+    ma_engine audio_engine; 
+
+    GLuint camera_texture = 0;
+
+    ParticleSystem particleSystem;  
+    float lastTime = 0.0f;  
+
+
+    void init_audio();
+    void play_audio();
+    void destroy_audio();
+
     bool init(void);
     void init_imgui();
     int run(void);
     void destroy(void);
+    void camera_loop();
+
+    //CAMERA
+    std::thread camera_thread;
+    bool camera_running = true;
 
     ~App();
 private:
@@ -32,6 +53,32 @@ private:
     bool is_vsync_on = true;
     bool show_imgui = true;
 
+    
+    
+    //SPOTLIGHT
+    bool spotlight_on = true;
+    float spotlight_intensity = 1.0f;
+
+    //FULLSCREEN
+    bool is_fullscreen = false;
+    int windowed_pos_x = 100, windowed_pos_y = 100;
+    int windowed_width = 800, windowed_height = 600;
+
+    //FREECAM
+    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+    glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+    float yaw = -90.0f;   // smìr "dozadu" (v ose Z)
+    float pitch = 0.0f;   // nahoru/dolu
+    float lastX = 400, lastY = 300; // støed okna (pøednastaveno na velikost 800x600)
+    float fov = 45.0f;
+
+    bool firstMouse = true;
+
+    float cameraSpeed = 2.5f; // pohybová rychlost
+
+
     //void thread_code(void);
 
     void init_opencv();
@@ -39,19 +86,23 @@ private:
     void init_glfw(void);
     void init_gl_debug();
     void init_assets(void);
+    void start_capture_thread();
 
     void print_opencv_info();
     void print_glfw_info(void);
     void print_glm_info();
     void print_gl_info();
+    void toggleFullscreen();
 
     //callbacks
     static void glfw_error_callback(int error, const char* description);
     static void glfw_framebuffer_size_callback(GLFWwindow* window, int width, int height);
     static void glfw_mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+    static void glfw_cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
     static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
     static void glfw_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
     static void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
+    
 
     //new GL stuff
     GLuint shader_prog_ID{ 0 };

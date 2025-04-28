@@ -113,5 +113,14 @@
     <ClInclude Include="teapot_vec.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="miniaudio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Particle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
