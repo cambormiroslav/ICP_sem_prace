@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <vector>
 #include <opencv2/opencv.hpp>
@@ -19,8 +19,6 @@
 class App {
 public:
     App();
-    
-    std::vector<uchar> lossy_bw_limit(cv::Mat& input_img, size_t size_limit);
 
     ma_engine audio_engine; 
 
@@ -49,6 +47,8 @@ public:
 private:
     cv::VideoCapture capture;
 
+    cv::Mat scene_hsv, scene_threshold;
+
     // GL
     GLFWwindow* window = nullptr;
     bool is_vsync_on = true;
@@ -73,14 +73,14 @@ private:
     glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
     glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
-    float yaw = -90.0f;   // smìr "dozadu" (v ose Z)
+    float yaw = -90.0f;   // smÄ›r "dozadu" (v ose Z)
     float pitch = 0.0f;   // nahoru/dolu
-    float lastX = 400, lastY = 300; // støed okna (pøednastaveno na velikost 800x600)
+    float lastX = 400, lastY = 300; // stÅ™ed okna (pÅ™ednastaveno na velikost 800x600)
     float fov = 45.0f;
 
     bool firstMouse = true;
 
-    float cameraSpeed = 2.5f; // pohybová rychlost
+    float cameraSpeed = 2.5f; // pohybovÃ¡ rychlost
 
 
     //void thread_code(void);
@@ -107,6 +107,7 @@ private:
     static void glfw_scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
     static void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
     
+    void play_if_color();
 
     //new GL stuff
     GLuint shader_prog_ID{ 0 };

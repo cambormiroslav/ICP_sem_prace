@@ -1,4 +1,4 @@
-extern "C" {
+Ôªøextern "C" {
     _declspec(dllexport) unsigned int NvOptimusEnablement = 0x00000001;
 }
 
@@ -95,6 +95,36 @@ void App::init_opencv()
     // ...
 }
 
+void App::play_if_color() 
+{
+    cv::cvtColor(frame, scene_hsv, cv::COLOR_BGR2HSV);
+
+    cv::Scalar lower_threshold = cv::Scalar(128.0, 128.0, 128.0);
+    cv::Scalar upper_threshold = cv::Scalar(255.0, 255.0, 255.0);
+
+    cv::inRange(scene_hsv, lower_threshold, upper_threshold, scene_threshold);
+    int number_of_pixels = 0;
+
+    for (int y = 0; y < scene_threshold.rows; y++)
+    {
+        for (int x = 0; x < scene_threshold.cols; x++)
+        {
+            // load source pixel
+            //cv::Vec3b pixel = scene_threshold.at<cv::Vec3b>(y, x);
+            int number_of_color_pixels_xy = (int)scene_threshold.at<uchar>(y, x);
+
+            number_of_pixels = number_of_color_pixels_xy + number_of_pixels;
+        }
+    }
+
+    auto this_inst = static_cast<App*>(glfwGetWindowUserPointer(window));
+
+    if (number_of_pixels > 0)
+        this_inst->play_audio();
+    else
+        this->stop_audio();
+}
+
 void App::start_capture_thread()
 {
     std::thread([this]() {
@@ -112,10 +142,11 @@ void App::start_capture_thread()
 
             
             lossy_quality_limit_thread();
+            play_if_color();
 
             std::this_thread::sleep_for(std::chrono::milliseconds(30)); // kamera 30 FPS
         }
-        }).detach(); // oddÏlenÈ vl·kno
+        }).detach(); // oddƒõlen√© vl√°kno
 }
 
 void App::camera_loop()
@@ -126,7 +157,7 @@ void App::camera_loop()
             std::lock_guard<std::mutex> lock(mux);
             frame = frame_local.clone();
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10)); // mal· pauza
+        std::this_thread::sleep_for(std::chrono::milliseconds(10)); // mal√° pauza
     }
 }
 
@@ -296,15 +327,15 @@ void App::init_assets(void) {
 
     shader = ShaderProgram("resources/lighting.vert", "resources/lighting.frag");
 
-    // Model 1 ñ kostka
+    // Model 1 ‚Äì kostka
     Model cube_model("./obj/cube_triangles_vnt.obj", shader, "resources/tex_beton.jpg");
     scene.insert({ "cube", cube_model });
 
-    // Model 2 ñ koule
+    // Model 2 ‚Äì koule
     Model sphere_model("./obj/sphere_tri_vnt.obj", shader, "resources/tex_drevo.jpg");
     scene.insert({ "sphere", sphere_model });
 
-    // Model 3 ñ kostka
+    // Model 3 ‚Äì kostka
     Model cube_modelalfa("./obj/cube_triangles_vnt.obj", shader, "resources/sklo.png");
     scene.insert({ "cubealfa", cube_modelalfa });
 
@@ -366,12 +397,6 @@ void App::glfw_key_callback(GLFWwindow* window, int key, int scancode, int actio
         case GLFW_KEY_D:
             this_inst->cameraPos += glm::normalize(glm::cross(this_inst->cameraFront, this_inst->cameraUp)) * velocity;
             break;
-        case GLFW_KEY_SPACE:
-            this_inst->play_audio();
-            break;
-        case GLFW_KEY_B:
-            this_inst->stop_audio();
-            break;
         default:
             break;
         }
@@ -384,7 +409,7 @@ void App::toggleFullscreen()
 
     if (this->is_fullscreen)
     {
-        // UloûÌme si velikost a pozici norm·lnÌho okna
+        // Ulo≈æ√≠me si velikost a pozici norm√°ln√≠ho okna
         glfwGetWindowPos(window, &this->windowed_pos_x, &this->windowed_pos_y);
         glfwGetWindowSize(window, &this->windowed_width, &this->windowed_height);
 
@@ -397,7 +422,7 @@ void App::toggleFullscreen()
     }
     else
     {
-        // Vr·tÌme se zp·tky do okna
+        // Vr√°t√≠me se zp√°tky do okna
         glfwSetWindowMonitor(window, nullptr, this->windowed_pos_x, this->windowed_pos_y, this->windowed_width, this->windowed_height, 0);
 
         glViewport(0, 0, this->windowed_width, this->windowed_height);
@@ -677,7 +702,7 @@ int App::run(void)
                 ImGui::NewFrame();
 
                 ImGui::SetNextWindowPos(ImVec2(10, 10));
-                ImGui::SetNextWindowSize(ImVec2(400, 400)); // klidnÏ vÏtöÌ pro kameru
+                ImGui::SetNextWindowSize(ImVec2(400, 400)); // klidnƒõ vƒõt≈°√≠ pro kameru
 
                 ImGui::Begin("Info", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 
@@ -716,10 +741,10 @@ int App::run(void)
             // 1. Aktivuj shader
             shader.activate();
 
-            // 2. Nastav barvu (uû m·ö)
+            // 2. Nastav barvu (u≈æ m√°≈°)
 
-            // 3. Nastav transformaËnÌ matice
-            float angle = (float)glfwGetTime(); // rotace v Ëase
+            // 3. Nastav transformaƒçn√≠ matice
+            float angle = (float)glfwGetTime(); // rotace v ƒçase
 
             glm::mat4 model_matrix = glm::rotate(glm::mat4(1.0f), glm::radians(-20.0f), glm::vec3(1.0f, 0.0f, 0.0f));
             model_matrix = glm::rotate(model_matrix, angle, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -731,7 +756,7 @@ int App::run(void)
                 cameraUp
             );
 
-            // Pro dynamickÈ rozmÏry:
+            // Pro dynamick√© rozmƒõry:
             int width, height;
             glfwGetFramebufferSize(window, &width, &height);
             float aspect = (float)width / height;
@@ -742,7 +767,7 @@ int App::run(void)
                 0.1f, 100.0f
             );
 
-            // 4. Poöli matice do shaderu
+            // 4. Po≈°li matice do shaderu
             shader.setUniform("uM_m", model_matrix);
             shader.setUniform("uV_m", view_matrix);
             shader.setUniform("uP_m", projection_matrix);
@@ -755,15 +780,15 @@ int App::run(void)
             shader.setUniform("dirLightDirection", glm::vec3(-0.2f, -1.0f, -0.3f));
             shader.setUniform("dirLightColor", glm::vec3(0.9f));
 
-            // Kamera (pozice a smÏr)
+            // Kamera (pozice a smƒõr)
             glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-            glm::vec3 cameraFront = glm::normalize(glm::vec3(0.0f, 0.0f, -1.0f)); // jednoduch· verze
+            glm::vec3 cameraFront = glm::normalize(glm::vec3(0.0f, 0.0f, -1.0f)); // jednoduch√° verze
 
             // Spotlight
             shader.setUniform("spotPos", cameraPos);
             shader.setUniform("spotDir", cameraFront);
 
-            // Tady rozsvÌtÌme nebo zhasneme reflektor
+            // Tady rozsv√≠t√≠me nebo zhasneme reflektor
             if (spotlight_on) {
                 shader.setUniform("spotColor", glm::vec3(1.0f) * spotlight_intensity);
             }
@@ -772,25 +797,25 @@ int App::run(void)
             }
 
 
-            // Spotlight cutoff ˙hly
+            // Spotlight cutoff √∫hly
             shader.setUniform("spotCutOff", glm::cos(glm::radians(12.5f)));
             shader.setUniform("spotOuterCutOff", glm::cos(glm::radians(17.5f)));
 
-            // Pro v˝poËet zrcadlenÌ
+            // Pro v√Ωpoƒçet zrcadlen√≠
             shader.setUniform("viewPos", cameraPos);
 
-            float deltaTime = 0.0f;  // »as mezi snÌmky
+            float deltaTime = 0.0f;  // ƒåas mezi sn√≠mky
             float currentFrame = glfwGetTime();
             deltaTime = currentFrame - lastTime;
             lastTime = currentFrame;
 
-            // P¯id·me novÈ Ë·stice (nap¯. na kaûdÈm snÌmku)
+            // P≈ôid√°me nov√© ƒç√°stice (nap≈ô. na ka≈æd√©m sn√≠mku)
             particleSystem.addParticle(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3((rand() % 2 ? 1 : -1) * 0.1f, 0.1f, (rand() % 2 ? 1 : -1) * 0.1f), 5.0f);
 
-            // Aktualizujeme vöechny Ë·stice
+            // Aktualizujeme v≈°echny ƒç√°stice
             particleSystem.update(deltaTime);
 
-            // VykreslÌme vöechny Ë·stice
+            // Vykresl√≠me v≈°echny ƒç√°stice
             particleSystem.draw();
 
 
@@ -812,10 +837,10 @@ int App::run(void)
                 }
             }
 
-            // Pr˘hlednÈ objekty nakonec
+            // Pr≈Øhledn√© objekty nakonec
             {
                 glm::mat4 model_matrix = glm::mat4(1.0f);
-                model_matrix = glm::translate(model_matrix, glm::vec3(0.0f, 0.0f, 0.0f)); // nap¯. û·dn˝ posun
+                model_matrix = glm::translate(model_matrix, glm::vec3(0.0f, 0.0f, 0.0f)); // nap≈ô. ≈æ√°dn√Ω posun
                 model_matrix = glm::scale(model_matrix, glm::vec3(2.0f)); 
 
                 shader.setUniform("uM_m", model_matrix);
@@ -851,12 +876,9 @@ int App::run(void)
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, frameRGB.cols, frameRGB.rows, 0, GL_RGB, GL_UNSIGNED_BYTE, frameRGB.data);
                 glBindTexture(GL_TEXTURE_2D, 0);
             }
-            
 
-            // display compression ratio
-            auto size_compreessed = bytes.size();
-
- 
+            if (!frame.empty())
+                play_if_color();
 
             target_quality = std::clamp(target_quality, 0.0f, 100.0f);
 
