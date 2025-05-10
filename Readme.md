@@ -3,8 +3,7 @@
 ## Keyboard usings
 
 * movement: `W`, `A`, `S`, `D`
-* play music: `space`
-* pause music: `B`
+* play music: `if webcam see red color`
 * turn on or off: `spotlight`
 * fullscreen swither: `F11`
 * turn on or off imgui: `I`
