@@ -119,10 +119,10 @@ void App::play_if_color()
 
     auto this_inst = static_cast<App*>(glfwGetWindowUserPointer(window));
 
-    /*if (number_of_pixels > 0)
+    if (number_of_pixels > 0)
         this_inst->play_audio();
     else
-        this->stop_audio();*/
+        this->stop_audio();
 }
 
 void App::start_capture_thread()
@@ -312,7 +312,7 @@ void App::init_gl_debug()
     if (GLEW_ARB_debug_output)
     {
         glDebugMessageCallback(MessageCallback, 0);
-        //glEnable(GL_DEBUG_OUTPUT);
+        glEnable(GL_DEBUG_OUTPUT);
         std::cout << "GL_DEBUG enabled." << std::endl;
     }else
         std::cout << "GL_DEBUG not supported!" << std::endl;
