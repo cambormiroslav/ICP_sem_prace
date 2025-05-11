@@ -119,10 +119,10 @@ void App::play_if_color()
 
     auto this_inst = static_cast<App*>(glfwGetWindowUserPointer(window));
 
-    if (number_of_pixels > 0)
+    /*if (number_of_pixels > 0)
         this_inst->play_audio();
     else
-        this->stop_audio();
+        this->stop_audio();*/
 }
 
 void App::start_capture_thread()
@@ -204,7 +204,7 @@ bool App::init()
         init_imgui();
 
 
-        glEnable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
@@ -312,8 +312,7 @@ void App::init_gl_debug()
     if (GLEW_ARB_debug_output)
     {
         glDebugMessageCallback(MessageCallback, 0);
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_DEBUG_OUTPUT);
+        //glEnable(GL_DEBUG_OUTPUT);
         std::cout << "GL_DEBUG enabled." << std::endl;
     }else
         std::cout << "GL_DEBUG not supported!" << std::endl;
@@ -838,12 +837,20 @@ int App::run(void)
 
             // Průhledné objekty nakonec
             {
+                glEnable(GL_BLEND);
+                glDepthMask(GL_FALSE);
+                glDisable(GL_CULL_FACE);
+
                 glm::mat4 model_matrix = glm::mat4(1.0f);
                 model_matrix = glm::translate(model_matrix, glm::vec3(0.0f, 0.0f, 0.0f)); // např. žádný posun
                 model_matrix = glm::scale(model_matrix, glm::vec3(2.0f)); 
 
                 shader.setUniform("uM_m", model_matrix);
                 scene["cubealfa"].draw();
+
+                glDisable(GL_BLEND);
+                glDepthMask(GL_TRUE);
+                glEnable(GL_CULL_FACE);
             }
 
 
