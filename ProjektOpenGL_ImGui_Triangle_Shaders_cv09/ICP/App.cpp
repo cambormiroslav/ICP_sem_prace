@@ -312,6 +312,7 @@ void App::init_gl_debug()
     if (GLEW_ARB_debug_output)
     {
         glDebugMessageCallback(MessageCallback, 0);
+        glEnable(GL_DEPTH_TEST);
         glEnable(GL_DEBUG_OUTPUT);
         std::cout << "GL_DEBUG enabled." << std::endl;
     }else
