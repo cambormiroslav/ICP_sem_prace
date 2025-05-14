@@ -11,7 +11,6 @@
 #include "ShaderProgram.hpp"
 #include "Model.h"
 #include "miniaudio.h"
-#include "ParticleSystem.h"
 
 
 
@@ -23,8 +22,7 @@ public:
     ma_engine audio_engine; 
 
     GLuint camera_texture = 0;
-
-    ParticleSystem particleSystem;  
+ 
     float lastTime = 0.0f;  
 
 

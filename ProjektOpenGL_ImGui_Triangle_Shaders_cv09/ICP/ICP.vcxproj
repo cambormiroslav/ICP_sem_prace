@@ -172,8 +172,6 @@
     <ClInclude Include="miniaudio.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="OBJloader.hpp" />
-    <ClInclude Include="Particle.h" />
-    <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="ShaderProgram.hpp" />
     <ClInclude Include="teapot_vec.hpp" />
     <ClInclude Include="Vertex.h" />

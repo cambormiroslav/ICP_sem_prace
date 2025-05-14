@@ -807,15 +807,6 @@ int App::run(void)
             deltaTime = currentFrame - lastTime;
             lastTime = currentFrame;
 
-            // Přidáme nové částice (např. na každém snímku)
-            particleSystem.addParticle(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3((rand() % 2 ? 1 : -1) * 0.1f, 0.1f, (rand() % 2 ? 1 : -1) * 0.1f), 5.0f);
-
-            // Aktualizujeme všechny částice
-            particleSystem.update(deltaTime);
-
-            // Vykreslíme všechny částice
-            particleSystem.draw();
-
 
             for (auto& model : scene) {
                 if (model.first == "cube" || model.first == "sphere") {
